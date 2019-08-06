@@ -87,9 +87,9 @@ int main( void )
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
 
 	std::vector<unsigned int> indexBuffer;
-	indexBuffer.push_back(2);
-	indexBuffer.push_back(1);
 	indexBuffer.push_back(0);
+	indexBuffer.push_back(1);
+	indexBuffer.push_back(2);
 
 	unsigned int indexBufferID;
 	glGenBuffers(1, &indexBufferID);
