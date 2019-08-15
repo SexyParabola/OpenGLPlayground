@@ -22,59 +22,12 @@ vec3 colorWheel(double theta) {
     );
 }
 
-void printBuffer(std::vector<unsigned int> buffer) {
-	std::cout << "[";
-	for (int i = 0; i < buffer.size(); i++) {
-		if (buffer.size() - 1 != i) {
-			std::cout << buffer[i] << ", ";
-		}else{
-			std::cout << buffer[i] << "]" << std::endl; 
-		}
-	}
-}
-
-void printBuffer(std::vector<point> buffer) {
-	std::cout << "[";
-	for (int i = 0; i < buffer.size(); i++) {
-		if (buffer.size() - 1 != i) {
-			std::cout << "(" << buffer[i].x << "x, " << buffer[i].y << "y), ";
-		}else{
-			std::cout << "(" << buffer[i].x << "x, " << buffer[i].y << "y)]" << std::endl; 
-		}
-	}
-}
-
-point middlePoint(point v1, point v2) {
+point middlePoint(point p1, point p2) {
 	return point(
-		(v2.x + v1.x) / 2.0,
-		(v2.y + v1.y) / 2.0
+		(p2.x + p1.x) / 2.0,
+		(p2.y + p1.y) / 2.0
 	);
 }
-
-void tess(std::vector<triangle> &triangleBuffer) {
-	std::vector<triangle> tempBuffer;
-	for (int i = 0; i < triangleBuffer.size(); i++) {
-		tempBuffer.push_back(triangle(
-			triangleBuffer[i].p1,
-			middlePoint(triangleBuffer[i].p1, triangleBuffer[i].p2),
-			middlePoint(triangleBuffer[i].p1, triangleBuffer[i].p3)
-		));
-			tempBuffer.push_back(triangle(
-			triangleBuffer[i].p2,
-			middlePoint(triangleBuffer[i].p2, triangleBuffer[i].p1),
-			middlePoint(triangleBuffer[i].p2, triangleBuffer[i].p3)
-		));
-			tempBuffer.push_back(triangle(
-			triangleBuffer[i].p3,
-			middlePoint(triangleBuffer[i].p3, triangleBuffer[i].p1),
-			middlePoint(triangleBuffer[i].p3, triangleBuffer[i].p2)
-		));
-	}
-	triangleBuffer = tempBuffer;
-
-}
-
-#define pi 3.14159
 
 int main( void )
 {
@@ -166,18 +119,6 @@ int main( void )
 		static int lim = 0;
 		if (glfwGetTime() - tickTimer >= 0.1) {
 			tickTimer = glfwGetTime();
-			if ( lim < 9 ) {
-				tess(tm.triangleBuffer);
-				lim++;
-			}else{
-				lim = 0;
-				tm.triangleBuffer.clear();
-				tm.addTriangle(
-					point( 0.0f , 1.0f ),
-					point( 1.0f , -1.0f ),
-					point( -1.0f , -1.0f )
-				);
-			}
 		}
 
 		int location = glGetUniformLocation(programID, "u_Color");

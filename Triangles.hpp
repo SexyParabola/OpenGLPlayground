@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 
 struct point {
     float x;
@@ -45,3 +46,25 @@ struct TriagleManager {
     };
     
 };
+
+void printBuffer(std::vector<unsigned int> buffer) {
+	std::cout << "[";
+	for (int i = 0; i < buffer.size(); i++) {
+		if (buffer.size() - 1 != i) {
+			std::cout << buffer[i] << ", ";
+		}else{
+			std::cout << buffer[i] << "]" << std::endl; 
+		}
+	}
+}
+
+void printBuffer(std::vector<point> buffer) {
+	std::cout << "[";
+	for (int i = 0; i < buffer.size(); i++) {
+		if (buffer.size() - 1 != i) {
+			std::cout << "(" << buffer[i].x << "x, " << buffer[i].y << "y), ";
+		}else{
+			std::cout << "(" << buffer[i].x << "x, " << buffer[i].y << "y)]" << std::endl; 
+		}
+	}
+}
