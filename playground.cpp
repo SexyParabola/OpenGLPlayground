@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
-#include <iostream> 
+#include <iostream>
+
 #include <GL/glew.h>
 
 #include <GLFW/glfw3.h>
@@ -11,6 +12,7 @@ GLFWwindow* window;
 using namespace glm;
 
 #include "../common/shader.hpp"
+#include "Triangles.hpp"
 
 vec3 colorWheel(double theta) {
     return vec3(
@@ -18,47 +20,6 @@ vec3 colorWheel(double theta) {
         (sin(theta + 2.094) + 1) / 2,
         (sin(theta + 4.188) + 1) / 2
     );
-}
-
-struct point {
-	float x;
-	float y;
-	point(float X, float Y){
-		x = X; y = Y;
-	}
-};
-
-point middlePoint(point v1, point v2) {
-	return point(
-		(v2.x + v1.x) / 2.0,
-		(v2.y + v1.y) / 2.0
-	);
-}
-
-void crunch(std::vector<point> &vBuffer, const std::vector<unsigned int> iBuffer) {
-	for(int i = 0; i < iBuffer.size(); i+=3) {
-		vBuffer.push_back(middlePoint( vBuffer[iBuffer[i + 0]], vBuffer[iBuffer[i + 1]] ));
-		vBuffer.push_back(middlePoint( vBuffer[iBuffer[i + 1]], vBuffer[iBuffer[i + 2]] ));
-		vBuffer.push_back(middlePoint( vBuffer[iBuffer[i + 2]], vBuffer[iBuffer[i + 0]] ));
-	}
-}
-
-void tess(std::vector<unsigned int> &iBuffer, unsigned int &iter){
-	 std::vector<unsigned int> temp;
-	 std::vector<unsigned int> dBuffer;
-	 const unsigned int s = iter * 3;
-	for(int i = 0; i < iBuffer.size(); i++) {
-		dBuffer.push_back(s + i);
-	}
-	 for (int oof = 0; oof < iBuffer.size(); oof+=3) {
-		for (int i = 0; i < 3; i++) {
-			temp.push_back(iBuffer[i + oof]);
-			temp.push_back(dBuffer[(i + oof) % iBuffer.size()]);
-			temp.push_back(dBuffer[(i + oof + 1) % iBuffer.size()]);
-		}
-	 }
-	 iBuffer = temp;
-	 iter++;
 }
 
 void printBuffer(std::vector<unsigned int> buffer) {
@@ -83,6 +44,36 @@ void printBuffer(std::vector<point> buffer) {
 	}
 }
 
+point middlePoint(point v1, point v2) {
+	return point(
+		(v2.x + v1.x) / 2.0,
+		(v2.y + v1.y) / 2.0
+	);
+}
+
+void tess(std::vector<triangle> &triangleBuffer) {
+	std::vector<triangle> tempBuffer;
+	for (int i = 0; i < triangleBuffer.size(); i++) {
+		tempBuffer.push_back(triangle(
+			triangleBuffer[i].p1,
+			middlePoint(triangleBuffer[i].p1, triangleBuffer[i].p2),
+			middlePoint(triangleBuffer[i].p1, triangleBuffer[i].p3)
+		));
+			tempBuffer.push_back(triangle(
+			triangleBuffer[i].p2,
+			middlePoint(triangleBuffer[i].p2, triangleBuffer[i].p1),
+			middlePoint(triangleBuffer[i].p2, triangleBuffer[i].p3)
+		));
+			tempBuffer.push_back(triangle(
+			triangleBuffer[i].p3,
+			middlePoint(triangleBuffer[i].p3, triangleBuffer[i].p1),
+			middlePoint(triangleBuffer[i].p3, triangleBuffer[i].p2)
+		));
+	}
+	triangleBuffer = tempBuffer;
+
+}
+
 #define pi 3.14159
 
 int main( void )
@@ -103,7 +94,7 @@ int main( void )
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Open a window and create its OpenGL context
-	window = glfwCreateWindow( 768 * 2.4, 768 * 2.2, "Playground", NULL, NULL);
+	window = glfwCreateWindow( 1024 * 2.4, 768 * 2.2, "Playground", NULL, NULL);
 	if( window == NULL ){
 		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
 		getchar();
@@ -135,34 +126,35 @@ int main( void )
 
 	unsigned int programID = LoadShaders( "vertexShader.glsl", "fragmentShader.glsl" );
 
-	std::vector<point> vertexBuffer;
-	vertexBuffer.push_back(point(0.0, 1.0));
-	vertexBuffer.push_back(point(1.0, -1.0)); 
-	vertexBuffer.push_back(point(-1.0, -1.0));
+	TriagleManager tm;
 
+	tm.addTriangle(
+		point( 0.0f , 1.0f ),
+		point( 1.0f , -1.0f ),
+		point( -1.0f , -1.0f )
+	);
+ 
 	unsigned int vertexBufferID;
 	glGenBuffers(1, &vertexBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
-
-	std::vector<unsigned int> indexBuffer;
-	indexBuffer.push_back(0);
-	indexBuffer.push_back(1);
-	indexBuffer.push_back(2);
 
 	unsigned int indexBufferID;
 	glGenBuffers(1, &indexBufferID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
 
 	vec3 color;
-	unsigned int iteration = 1;
 	do{
+		const std::vector<point> vertexBuffer = tm.getVertexBuffer();
+		//printBuffer(vertexBuffer);
 		GLfloat vertex_buffer_data[vertexBuffer.size() * 2];
-		for (int i = 0; i < vertexBuffer.size() * 2; i = i + 2) {
+		for (int i = 0; i < vertexBuffer.size() * 2; i += 2) {
 			vertex_buffer_data[i] = vertexBuffer[i / 2].x;
 			vertex_buffer_data[i + 1] = vertexBuffer[i / 2].y;
 		}
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_buffer_data), vertex_buffer_data, GL_DYNAMIC_DRAW);
 
+		const std::vector<unsigned int> indexBuffer = tm.getIndexBuffer();
+		//printBuffer(indexBuffer);
 		GLuint index_buffer_data[indexBuffer.size()];
 		for (int i = 0; i < indexBuffer.size(); i++) {
 			index_buffer_data[i] = indexBuffer[i];
@@ -171,14 +163,21 @@ int main( void )
 		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(programID);
 
-		if (glfwGetTime() - tickTimer >= 1.5f) {
+		static int lim = 0;
+		if (glfwGetTime() - tickTimer >= 0.5) {
 			tickTimer = glfwGetTime();
-
-			crunch(vertexBuffer, indexBuffer);
-			tess(indexBuffer, iteration);
-			printBuffer(indexBuffer);  
-			printBuffer(vertexBuffer);
-			iteration++;
+			if ( lim < 9 ) {
+				tess(tm.triangleBuffer);
+				lim++;
+			}else{
+				lim = 0;
+				tm.triangleBuffer.clear();
+				tm.addTriangle(
+					point( 0.0f , 1.0f ),
+					point( 1.0f , -1.0f ),
+					point( -1.0f , -1.0f )
+				);
+			}
 		}
 
 		int location = glGetUniformLocation(programID, "u_Color");
