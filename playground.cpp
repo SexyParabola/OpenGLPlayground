@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+#include <iostream>
 
 #include <GL/glew.h>
 
@@ -11,6 +12,7 @@ GLFWwindow* window;
 using namespace glm;
 
 #include "../common/shader.hpp"
+#include "Triangles.hpp"
 
 vec3 colorWheel(double theta) {
     return vec3(
@@ -18,6 +20,58 @@ vec3 colorWheel(double theta) {
         (sin(theta + 2.094) + 1) / 2,
         (sin(theta + 4.188) + 1) / 2
     );
+}
+
+void printBuffer(std::vector<unsigned int> buffer) {
+	std::cout << "[";
+	for (int i = 0; i < buffer.size(); i++) {
+		if (buffer.size() - 1 != i) {
+			std::cout << buffer[i] << ", ";
+		}else{
+			std::cout << buffer[i] << "]" << std::endl; 
+		}
+	}
+}
+
+void printBuffer(std::vector<point> buffer) {
+	std::cout << "[";
+	for (int i = 0; i < buffer.size(); i++) {
+		if (buffer.size() - 1 != i) {
+			std::cout << "(" << buffer[i].x << "x, " << buffer[i].y << "y), ";
+		}else{
+			std::cout << "(" << buffer[i].x << "x, " << buffer[i].y << "y)]" << std::endl; 
+		}
+	}
+}
+
+point middlePoint(point v1, point v2) {
+	return point(
+		(v2.x + v1.x) / 2.0,
+		(v2.y + v1.y) / 2.0
+	);
+}
+
+void tess(std::vector<triangle> &triangleBuffer) {
+	std::vector<triangle> tempBuffer;
+	for (int i = 0; i < triangleBuffer.size(); i++) {
+		tempBuffer.push_back(triangle(
+			triangleBuffer[i].p1,
+			middlePoint(triangleBuffer[i].p1, triangleBuffer[i].p2),
+			middlePoint(triangleBuffer[i].p1, triangleBuffer[i].p3)
+		));
+			tempBuffer.push_back(triangle(
+			triangleBuffer[i].p2,
+			middlePoint(triangleBuffer[i].p2, triangleBuffer[i].p1),
+			middlePoint(triangleBuffer[i].p2, triangleBuffer[i].p3)
+		));
+			tempBuffer.push_back(triangle(
+			triangleBuffer[i].p3,
+			middlePoint(triangleBuffer[i].p3, triangleBuffer[i].p1),
+			middlePoint(triangleBuffer[i].p3, triangleBuffer[i].p2)
+		));
+	}
+	triangleBuffer = tempBuffer;
+
 }
 
 #define pi 3.14159
@@ -72,38 +126,35 @@ int main( void )
 
 	unsigned int programID = LoadShaders( "vertexShader.glsl", "fragmentShader.glsl" );
 
-	std::vector<float> buffer;
-	buffer.push_back(-1.0f); 
-	buffer.push_back(-1.0f); 
+	TriagleManager tm;
 
-	buffer.push_back(1.0f); 
-	buffer.push_back(-1.0f); 
-
-	buffer.push_back(0.0f); 
-	buffer.push_back(1.0f); 
-
+	tm.addTriangle(
+		point( 0.0f , 1.0f ),
+		point( 1.0f , -1.0f ),
+		point( -1.0f , -1.0f )
+	);
+ 
 	unsigned int vertexBufferID;
 	glGenBuffers(1, &vertexBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
-
-	std::vector<unsigned int> indexBuffer;
-	indexBuffer.push_back(0);
-	indexBuffer.push_back(1);
-	indexBuffer.push_back(2);
 
 	unsigned int indexBufferID;
 	glGenBuffers(1, &indexBufferID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
 
 	vec3 color;
-	unsigned int iteration = 1;
 	do{
-		GLfloat vertex_buffer_data[buffer.size()];
-		for (int i = 0; i < buffer.size(); i++) {
-			vertex_buffer_data[i] = buffer[i];
+		const std::vector<point> vertexBuffer = tm.getVertexBuffer();
+		//printBuffer(vertexBuffer);
+		GLfloat vertex_buffer_data[vertexBuffer.size() * 2];
+		for (int i = 0; i < vertexBuffer.size() * 2; i += 2) {
+			vertex_buffer_data[i] = vertexBuffer[i / 2].x;
+			vertex_buffer_data[i + 1] = vertexBuffer[i / 2].y;
 		}
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_buffer_data), vertex_buffer_data, GL_DYNAMIC_DRAW);
 
+		const std::vector<unsigned int> indexBuffer = tm.getIndexBuffer();
+		//printBuffer(indexBuffer);
 		GLuint index_buffer_data[indexBuffer.size()];
 		for (int i = 0; i < indexBuffer.size(); i++) {
 			index_buffer_data[i] = indexBuffer[i];
@@ -112,12 +163,21 @@ int main( void )
 		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(programID);
 
-		if (glfwGetTime() - tickTimer >= 0.5) {
+		static int lim = 0;
+		if (glfwGetTime() - tickTimer >= 0.1) {
 			tickTimer = glfwGetTime();
-			for (int i = 0; i < iteration * 6; i++) {
-				buffer.push_back((buffer[i % iteration * 6] - buffer[iteration + 1 % iteration * 6]) / 2);
+			if ( lim < 9 ) {
+				tess(tm.triangleBuffer);
+				lim++;
+			}else{
+				lim = 0;
+				tm.triangleBuffer.clear();
+				tm.addTriangle(
+					point( 0.0f , 1.0f ),
+					point( 1.0f , -1.0f ),
+					point( -1.0f , -1.0f )
+				);
 			}
-			iteration++;
 		}
 
 		int location = glGetUniformLocation(programID, "u_Color");
