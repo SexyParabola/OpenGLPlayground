@@ -9,6 +9,7 @@
 GLFWwindow* window;
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 using namespace glm;
 
 #include "../common/shader.hpp"
@@ -22,12 +23,12 @@ vec3 colorWheel(double theta) {
     );
 }
 
-point middlePoint(point p1, point p2) {
-	return point(
-		(p2.x + p1.x) / 2.0,
-		(p2.y + p1.y) / 2.0
-	);
-}
+// point middlePoint(point p1, point p2) {
+// 	return point(
+// 		(p2.x + p1.x) / 2.0,
+// 		(p2.y + p1.y) / 2.0
+// 	);
+// }
 
 int main( void )
 {
@@ -73,12 +74,6 @@ int main( void )
 	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
-	unsigned int VertexArrayID;
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
-
-	unsigned int programID = LoadShaders( "vertexShader.glsl", "fragmentShader.glsl" );
-
 	TriagleManager tm;
 
 	tm.addTriangle(
@@ -86,7 +81,18 @@ int main( void )
 		point( 1.0f , -1.0f ),
 		point( -1.0f , -1.0f )
 	);
- 
+
+	unsigned int VertexArrayID;
+	glGenVertexArrays(1, &VertexArrayID);
+	glBindVertexArray(VertexArrayID);
+
+	unsigned int programID = LoadShaders( "vertexShader.glsl", "fragmentShader.glsl" );
+	glUseProgram(programID);
+
+	unsigned int MatrixID = glGetUniformLocation(programID, "MVP");
+
+	unsigned int ColorID = glGetUniformLocation(programID, "u_Color");
+
 	unsigned int vertexBufferID;
 	glGenBuffers(1, &vertexBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
@@ -95,7 +101,24 @@ int main( void )
 	glGenBuffers(1, &indexBufferID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
 
-	vec3 color;
+	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f); // Projection matrix : 45� Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+	
+	// Or, for an ortho camera :
+	//glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
+	
+	// Camera matrix
+	glm::mat4 View       = glm::lookAt(
+								glm::vec3(0,0,5), // Camera is at (4,3,3), in World Space
+								glm::vec3(0,0,0), // and looks at the origin
+								glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+						   );
+	// Model matrix : an identity matrix (model will be at the origin)
+	glm::mat4 Model      = glm::mat4(1.0f);
+	// Our ModelViewProjection : multiplication of our 3 matrices
+	glm::mat4 MVP        = Projection * View * Model; // Remember, matrix multiplication is the other way around
+
+	//vec3 color;
+
 	do{
 		const std::vector<point> vertexBuffer = tm.getVertexBuffer();
 		//printBuffer(vertexBuffer);
@@ -113,18 +136,21 @@ int main( void )
 			index_buffer_data[i] = indexBuffer[i];
 		}
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index_buffer_data), index_buffer_data, GL_DYNAMIC_DRAW);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glUseProgram(programID);
 
-		static int lim = 0;
-		if (glfwGetTime() - tickTimer >= 0.1) {
-			tickTimer = glfwGetTime();
-		}
+		glClear(GL_COLOR_BUFFER_BIT); // Clear Buffer
+		
 
-		int location = glGetUniformLocation(programID, "u_Color");
-		color = colorWheel(glfwGetTime());
-		glUniform3f(location, color.r, color.g, color.b);
+		// if (glfwGetTime() - tickTimer >= 0.5) {
+		// 	tickTimer = glfwGetTime();
+		// }
+
+		// MVP = Projection * View * Model;		
+
+		vec3 color = colorWheel(glfwGetTime() * 4.0);
+		glUniform3f(ColorID, color.r, color.g, color.b);
 		//glClearColor(1.0f - color.r, 1.0f - color.g, 1.0f - color.b, 0.0f);
+
+		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);

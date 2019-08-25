@@ -3,9 +3,10 @@
 // Input vertex data, different for all executions of this shader.
 layout(location = 0) in vec3 vertexPosition;
 
+uniform mat4 MVP;
+
 void main(){
 
-    gl_Position.xyz = vertexPosition;
-    gl_Position.w = 1;
+    gl_Position = MVP * vec4(vertexPosition, 1);
 
 }
