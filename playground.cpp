@@ -23,13 +23,6 @@ vec3 colorWheel(double theta) {
     );
 }
 
-// point middlePoint(point p1, point p2) {
-// 	return point(
-// 		(p2.x + p1.x) / 2.0,
-// 		(p2.y + p1.y) / 2.0
-// 	);
-// }
-
 int main( void )
 {
 	// Initialise GLFW
@@ -66,7 +59,7 @@ int main( void )
 		return -1;
 	}
 
-	float tickTimer = glfwGetTime();
+	//float tickTimer = glfwGetTime();
 
 	// Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
@@ -101,23 +94,19 @@ int main( void )
 	glGenBuffers(1, &indexBufferID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
 
-	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f); // Projection matrix : 45� Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-	
-	// Or, for an ortho camera :
-	//glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
-	
+	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f); 
 	// Camera matrix
-	glm::mat4 View       = glm::lookAt(
-								glm::vec3(0,0,5), // Camera is at (4,3,3), in World Space
-								glm::vec3(0,0,0), // and looks at the origin
-								glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
-						   );
+	
+	glm::mat4 View = glm::lookAt(
+		glm::vec3(0,0,5), // Camera is at (4,3,3), in World Space
+		glm::vec3(0,0,0), // and looks at the origin
+		glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+	);
 	// Model matrix : an identity matrix (model will be at the origin)
-	glm::mat4 Model      = glm::mat4(1.0f);
+	glm::mat4 Model = glm::mat4(1.0f);
 	// Our ModelViewProjection : multiplication of our 3 matrices
-	glm::mat4 MVP        = Projection * View * Model; // Remember, matrix multiplication is the other way around
+	glm::mat4 MVP = Projection * View * Model; // Remember, matrix multiplication is the other way around
 
-	//vec3 color;
 
 	do{
 		const std::vector<point> vertexBuffer = tm.getVertexBuffer();
@@ -142,7 +131,6 @@ int main( void )
 
 		// if (glfwGetTime() - tickTimer >= 0.5) {
 		// 	tickTimer = glfwGetTime();
-		// }
 
 		// MVP = Projection * View * Model;		
 
