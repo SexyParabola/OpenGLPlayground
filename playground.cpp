@@ -51,7 +51,7 @@ point middlePoint(point v1, point v2) {
 	);
 }
 
-void tess(std::vector<triangle> &triangleBuffer) {
+void sierpinskiTessellation(std::vector<triangle> &triangleBuffer) {
 	std::vector<triangle> tempBuffer;
 	for (int i = 0; i < triangleBuffer.size(); i++) {
 		tempBuffer.push_back(triangle(
