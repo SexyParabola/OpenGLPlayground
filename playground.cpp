@@ -80,7 +80,6 @@ int main( void )
 	glBindVertexArray(VertexArrayID);
 
 	unsigned int programID = LoadShaders( "vertexShader.glsl", "fragmentShader.glsl" );
-	glUseProgram(programID);
 
 	unsigned int MatrixID = glGetUniformLocation(programID, "MVP");
 
@@ -109,22 +108,11 @@ int main( void )
 
 
 	do{
-		const std::vector<point> vertexBuffer = tm.getVertexBuffer();
-		//printBuffer(vertexBuffer);
-		GLfloat vertex_buffer_data[vertexBuffer.size() * 2];
-		for (int i = 0; i < vertexBuffer.size() * 2; i += 2) {
-			vertex_buffer_data[i] = vertexBuffer[i / 2].x;
-			vertex_buffer_data[i + 1] = vertexBuffer[i / 2].y;
-		}
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_buffer_data), vertex_buffer_data, GL_DYNAMIC_DRAW);
+		const std::vector<float> vertexBuffer_data = tm.getVertexBuffer();
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer_data), &vertexBuffer_data[0], GL_DYNAMIC_DRAW);
 
-		const std::vector<unsigned int> indexBuffer = tm.getIndexBuffer();
-		//printBuffer(indexBuffer);
-		GLuint index_buffer_data[indexBuffer.size()];
-		for (int i = 0; i < indexBuffer.size(); i++) {
-			index_buffer_data[i] = indexBuffer[i];
-		}
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index_buffer_data), index_buffer_data, GL_DYNAMIC_DRAW);
+		const std::vector<unsigned int> indexBuffer_data = tm.getIndexBuffer();
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexBuffer_data), &indexBuffer_data[0], GL_DYNAMIC_DRAW);
 
 		glClear(GL_COLOR_BUFFER_BIT); // Clear Buffer
 		
@@ -136,19 +124,20 @@ int main( void )
 
 		vec3 color = colorWheel(glfwGetTime() * 4.0);
 		glUniform3f(ColorID, color.r, color.g, color.b);
+		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 		//glClearColor(1.0f - color.r, 1.0f - color.g, 1.0f - color.b, 0.0f);
 
-		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-		glDrawElements(GL_TRIANGLES, indexBuffer.size(), GL_UNSIGNED_INT, (void*)0);
+		glDrawElements(GL_TRIANGLES, indexBuffer_data.size(), GL_UNSIGNED_INT, (void*)0);
 		//glDrawArrays(GL_TRIANGLES, 0, (int)(buffer.size() / 2));
 
 		glDisableVertexAttribArray(0);
+		glUseProgram(programID);
 		// Swap buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();

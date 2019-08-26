@@ -23,12 +23,15 @@ struct TriagleManager {
     std::vector<triangle> triangleBuffer;
     TriagleManager(){
     }
-    const std::vector<point> getVertexBuffer() { 
-        std::vector<point> vertexBuffer;
+    const std::vector<float> getVertexBuffer() { 
+        std::vector<float> vertexBuffer;
         for (int i = 0; i < triangleBuffer.size(); i++) {
-            vertexBuffer.push_back(triangleBuffer[i].p1);
-            vertexBuffer.push_back(triangleBuffer[i].p2);
-            vertexBuffer.push_back(triangleBuffer[i].p3);
+            vertexBuffer.push_back(triangleBuffer[i].p1.x);
+            vertexBuffer.push_back(triangleBuffer[i].p1.y);
+            vertexBuffer.push_back(triangleBuffer[i].p2.x);
+            vertexBuffer.push_back(triangleBuffer[i].p2.y);
+            vertexBuffer.push_back(triangleBuffer[i].p3.x);
+            vertexBuffer.push_back(triangleBuffer[i].p3.y);
         }
         return vertexBuffer;
     }
