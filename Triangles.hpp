@@ -10,12 +10,22 @@ struct point {
     point() {};
 };
 
+struct color {
+    float r;
+    float g;
+    float b;
+    color(float R, float G, float B) {
+        r = R; g = G; b = B;
+    }
+};
+
 struct triangle {
     point p1;
     point p2;
     point p3;
-    triangle(const point P1, const point P2, const point P3) {
-        p1 = P1; p2 = P2; p3 = P3;
+    color c;
+    triangle(const point P1, const point P2, const point P3, const color C) {
+        p1 = P1; p2 = P2; p3 = P3; c = C;
     }
 };
 
@@ -44,8 +54,16 @@ struct TriagleManager {
         }
         return indexBuffer;
     }
-    void addTriangle( point p1, point p2, point p3){
-        triangleBuffer.push_back(triangle(p1, p2, p3));
+    const std::vector<float> getColorBuffer() {
+        std::vector<float> colorBuffer;
+        for (int i = 0; i < triangleBuffer.size(); i++) {
+            colorBuffer.push_back(triangleBuffer[i].c.r);
+            colorBuffer.push_back(triangleBuffer[i].c.g);
+            colorBuffer.push_back(triangleBuffer[i].c.b);
+        }
+    }
+    void addTriangle(const point p1, const point const p2, const point p3, const color c){
+        triangleBuffer.push_back(triangle(p1, p2, p3, c));
     };
     
 };
