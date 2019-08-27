@@ -72,7 +72,8 @@ int main( void )
 	tm.addTriangle(
 		point( 0.0f , 1.0f ),
 		point( 1.0f , -1.0f ),
-		point( -1.0f , -1.0f )
+		point( -1.0f , -1.0f ),
+		color(0.0f, 1.0f, 0.0f)
 	);
 
 	unsigned int VertexArrayID;
@@ -108,7 +109,7 @@ int main( void )
 
 
 	do{
-		
+
 		const std::vector<float> vertexBuffer_data = tm.getVertexBuffer();
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer_data), &vertexBuffer_data[0], GL_DYNAMIC_DRAW);
 
