@@ -23,7 +23,7 @@ struct triangle {
     point p1;
     point p2;
     point p3;
-    color c;
+    color c = color(0.0f, 0.0f, 0.0f);
     triangle(const point P1, const point P2, const point P3, const color C) {
         p1 = P1; p2 = P2; p3 = P3; c = C;
     }
@@ -61,8 +61,9 @@ struct TriagleManager {
             colorBuffer.push_back(triangleBuffer[i].c.g);
             colorBuffer.push_back(triangleBuffer[i].c.b);
         }
+        return colorBuffer;
     }
-    void addTriangle(const point p1, const point const p2, const point p3, const color c){
+    void addTriangle(const point p1, const point p2, const point p3, const color c){
         triangleBuffer.push_back(triangle(p1, p2, p3, c));
     };
     

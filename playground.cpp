@@ -116,6 +116,9 @@ int main( void )
 		const std::vector<unsigned int> indexBuffer_data = tm.getIndexBuffer();
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexBuffer_data), &indexBuffer_data[0], GL_DYNAMIC_DRAW);
 
+		const std::vector<float> colorBuffer_data = tm.getColorBuffer();
+		glBufferData(GL_ARRAY_BUFFER, sizeof(colorBuffer_data), &colorBuffer_data[0], GL_DYNAMIC_DRAW);
+
 		glClear(GL_COLOR_BUFFER_BIT); // Clear Buffer
 		
 
