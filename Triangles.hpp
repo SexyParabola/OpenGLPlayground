@@ -61,13 +61,13 @@ void printBuffer(std::vector<unsigned int> buffer) {
 	}
 }
 
-void printBuffer(std::vector<point> buffer) {
+void printBuffer(std::vector<float> buffer) {
 	std::cout << "[";
-	for (int i = 0; i < buffer.size(); i++) {
+	for (int i = 0; i < buffer.size(); i=+2) {
 		if (buffer.size() - 1 != i) {
-			std::cout << "(" << buffer[i].x << "x, " << buffer[i].y << "y), ";
+			std::cout << "(" << buffer[i] << "x, " << buffer[i+1] << "y), ";
 		}else{
-			std::cout << "(" << buffer[i].x << "x, " << buffer[i].y << "y)]" << std::endl; 
+			std::cout << "(" << buffer[i] << "x, " << buffer[i+1] << "y)]" << std::endl; 
 		}
 	}
 }

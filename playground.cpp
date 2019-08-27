@@ -108,6 +108,7 @@ int main( void )
 
 
 	do{
+		
 		const std::vector<float> vertexBuffer_data = tm.getVertexBuffer();
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer_data), &vertexBuffer_data[0], GL_DYNAMIC_DRAW);
 
@@ -119,7 +120,6 @@ int main( void )
 
 		// if (glfwGetTime() - tickTimer >= 0.5) {
 		// 	tickTimer = glfwGetTime();
-
 		// MVP = Projection * View * Model;		
 
 		vec3 color = colorWheel(glfwGetTime() * 4.0);
