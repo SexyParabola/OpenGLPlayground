@@ -22,7 +22,7 @@ public:
     }
     int addRectangle(const point P, const point S, color C) {
         addTriangle( point(P.x, P.y), point(P.x + S.x, P.y), point(P.x + S.x, P.y + S.y), C);
-        addTriangle( point(P.x, P.y), point(P.x + S.x, P.y), point(P.x + S.x, P.y + S.y), C);
+        addTriangle( point(P.x, P.y), point(P.x, P.y + S.y), point(P.x + S.x, P.y + S.y), C);
         rectangleNum++;
         return rectangleNum;
     };

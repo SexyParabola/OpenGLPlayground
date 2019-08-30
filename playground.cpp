@@ -16,12 +16,54 @@ using namespace glm;
 #include "Triangles.hpp"
 #include "ShapeManager.hpp"
 
-vec3 colorWheel(double theta) {
-    return vec3(
+color colorWheel(double theta) {
+    return color(
         (sin(theta + 0.000) + 1) / 2,
         (sin(theta + 2.094) + 1) / 2,
         (sin(theta + 4.188) + 1) / 2
     );
+}
+
+point middlePoint(point v1, point v2) {
+	return point(
+		(v2.x + v1.x) / 2.0,
+		(v2.y + v1.y) / 2.0
+	);
+}
+
+void sierpinskiTessellation(std::vector<triangle> &triangleBuffer) {
+	std::vector<triangle> tempBuffer;
+	for (int i = 0; i < triangleBuffer.size(); i++) {
+		tempBuffer.push_back(triangle(
+			triangleBuffer[i].p1,
+			middlePoint(triangleBuffer[i].p1, triangleBuffer[i].p2),
+			middlePoint(triangleBuffer[i].p1, triangleBuffer[i].p3),
+			triangleBuffer[i].c
+		));
+			tempBuffer.push_back(triangle(
+			triangleBuffer[i].p2,
+			middlePoint(triangleBuffer[i].p2, triangleBuffer[i].p1),
+			middlePoint(triangleBuffer[i].p2, triangleBuffer[i].p3),
+			triangleBuffer[i].c
+		));
+			tempBuffer.push_back(triangle(
+			triangleBuffer[i].p3,
+			middlePoint(triangleBuffer[i].p3, triangleBuffer[i].p1),
+			middlePoint(triangleBuffer[i].p3, triangleBuffer[i].p2),
+			triangleBuffer[i].c
+		));
+	}
+	triangleBuffer = tempBuffer;
+
+}
+
+void geoInit(ShapeManager &sm) 
+{
+	sm.addRectangle(
+		point(-1.0, -1.0),
+		point(2.0, 2.0),
+		color(1, 0, 0)
+	);
 }
 
 int main( void )
@@ -70,20 +112,7 @@ int main( void )
 
 	ShapeManager sm;
 
-	sm.addTriangle(
-		point( 1.0f , 1.0f ),
-		point( 2.0f , -1.0f ),
-		point( -2.0f , -1.0f ),
-		color(1.0f, 1.0f, 0.0f)
-	);
-
-	sm.addTriangle(
-		point( 0.0f , 1.0f ),
-		point( 1.0f , -1.0f ),
-		point( -1.0f , -1.0f ),
-		color(0.0f, 1.0f, 0.5f)
-	);
-
+	geoInit(sm); // 
 
 	//printBuffer(tm.getColorBuffer());
 
@@ -120,44 +149,34 @@ int main( void )
 	// Our ModelViewProjection : multiplication of our 3 matrices
 	glm::mat4 MVP = Projection * View * Model; // Remember, matrix multiplication is the other way around
 
+	float tickTimer = glfwGetTime();
 
 	do{
 
 		const std::vector<float> vertexBuffer = sm.tm.getVertexBuffer();
-		//printBuffer(vertexBuffer);
-		GLfloat vertex_buffer_data[vertexBuffer.size()];
-		for (int i = 0; i < vertexBuffer.size(); i++) {
-			vertex_buffer_data[i] = vertexBuffer[i];
-		}
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_buffer_data), vertex_buffer_data, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer[0]) * vertexBuffer.size(), &vertexBuffer[0], GL_DYNAMIC_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
 		const std::vector<unsigned int> indexBuffer = sm.tm.getIndexBuffer();
-		//printBuffer(indexBuffer);
-		GLuint index_buffer_data[indexBuffer.size()];
-		for (int i = 0; i < indexBuffer.size(); i++) {
-			index_buffer_data[i] = indexBuffer[i];
-		}
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index_buffer_data), index_buffer_data, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexBuffer[0]) * indexBuffer.size(), &indexBuffer[0], GL_DYNAMIC_DRAW);
 		
 
 		const std::vector<float> colorBuffer = sm.tm.getColorBuffer();
-		GLfloat colorBuffer_data[colorBuffer.size()];
-		for (int i = 0; i < colorBuffer.size(); i++) {
-			colorBuffer_data[i] = colorBuffer[i];
-		}
 		glEnableVertexAttribArray(1);
 		glBindBuffer(GL_ARRAY_BUFFER, colorBufferID);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(colorBuffer_data), &colorBuffer_data[0], GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(colorBuffer[0]) * colorBuffer.size(), &colorBuffer[0], GL_DYNAMIC_DRAW);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-		
-		glClear(GL_COLOR_BUFFER_BIT); // Clear Buffer
-		
 
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+		
+		glClear(GL_COLOR_BUFFER_BIT); // Clear Buffer
+
+		// if (glfwGetTime() - tickTimer >= 0.5) {
+		// 	tickTimer = glfwGetTime();
+		// }
 
 		glDrawElements(GL_TRIANGLES, indexBuffer.size(), GL_UNSIGNED_INT, (void*)0);
 		//glDrawArrays(GL_TRIANGLES, 0, (int)(buffer.size() / 2));
