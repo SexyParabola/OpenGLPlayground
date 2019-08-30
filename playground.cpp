@@ -103,8 +103,7 @@ int main( void )
 	glGenBuffers(1, &colorBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, colorBufferID);
 
-	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f); 
-	// Camera matrix
+	glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
 	
 	glm::mat4 View = glm::lookAt(
 		glm::vec3(0,0,5), // Camera is at (4,3,3), in World Space
