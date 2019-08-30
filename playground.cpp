@@ -83,7 +83,7 @@ int main( void )
 		color(0.0f, 1.0f, 0.5f)
 	);
 
-	printBuffer(tm.getColorBuffer());
+	//printBuffer(tm.getColorBuffer());
 
 	unsigned int VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
