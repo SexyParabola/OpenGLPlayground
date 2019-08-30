@@ -14,6 +14,7 @@ using namespace glm;
 
 #include "../common/shader.hpp"
 #include "Triangles.hpp"
+#include "ShapeManager.hpp"
 
 vec3 colorWheel(double theta) {
     return vec3(
@@ -67,21 +68,22 @@ int main( void )
 	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
-	TriagleManager tm;
+	ShapeManager sm;
 
-	tm.addTriangle(
+	sm.addTriangle(
 		point( 1.0f , 1.0f ),
 		point( 2.0f , -1.0f ),
 		point( -2.0f , -1.0f ),
 		color(1.0f, 1.0f, 0.0f)
 	);
 
-	tm.addTriangle(
+	sm.addTriangle(
 		point( 0.0f , 1.0f ),
 		point( 1.0f , -1.0f ),
 		point( -1.0f , -1.0f ),
 		color(0.0f, 1.0f, 0.5f)
 	);
+
 
 	//printBuffer(tm.getColorBuffer());
 
@@ -121,7 +123,7 @@ int main( void )
 
 	do{
 
-		const std::vector<float> vertexBuffer = tm.getVertexBuffer();
+		const std::vector<float> vertexBuffer = sm.tm.getVertexBuffer();
 		//printBuffer(vertexBuffer);
 		GLfloat vertex_buffer_data[vertexBuffer.size()];
 		for (int i = 0; i < vertexBuffer.size(); i++) {
@@ -132,7 +134,7 @@ int main( void )
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_buffer_data), vertex_buffer_data, GL_DYNAMIC_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-		const std::vector<unsigned int> indexBuffer = tm.getIndexBuffer();
+		const std::vector<unsigned int> indexBuffer = sm.tm.getIndexBuffer();
 		//printBuffer(indexBuffer);
 		GLuint index_buffer_data[indexBuffer.size()];
 		for (int i = 0; i < indexBuffer.size(); i++) {
@@ -142,7 +144,7 @@ int main( void )
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index_buffer_data), index_buffer_data, GL_DYNAMIC_DRAW);
 		
 
-		const std::vector<float> colorBuffer = tm.getColorBuffer();
+		const std::vector<float> colorBuffer = sm.tm.getColorBuffer();
 		GLfloat colorBuffer_data[colorBuffer.size()];
 		for (int i = 0; i < colorBuffer.size(); i++) {
 			colorBuffer_data[i] = colorBuffer[i];

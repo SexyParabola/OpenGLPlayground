@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <vector>
 
 struct point {
     float x;
@@ -29,9 +30,9 @@ struct triangle {
     }
 };
 
-struct TriagleManager {
+struct TriangleManager {
     std::vector<triangle> triangleBuffer;
-    TriagleManager() {}
+    TriangleManager() {}
     const std::vector<float> getVertexBuffer() { 
         std::vector<float> vertexBuffer;
         for (int i = 0; i < triangleBuffer.size(); i++) {
