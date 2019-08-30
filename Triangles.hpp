@@ -31,8 +31,7 @@ struct triangle {
 
 struct TriagleManager {
     std::vector<triangle> triangleBuffer;
-    TriagleManager(){
-    }
+    TriagleManager() {}
     const std::vector<float> getVertexBuffer() { 
         std::vector<float> vertexBuffer;
         for (int i = 0; i < triangleBuffer.size(); i++) {
