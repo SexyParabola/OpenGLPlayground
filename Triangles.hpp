@@ -57,6 +57,15 @@ struct TriagleManager {
     const std::vector<float> getColorBuffer() {
         std::vector<float> colorBuffer;
         for (int i = 0; i < triangleBuffer.size(); i++) {
+            // Point 1
+            colorBuffer.push_back(triangleBuffer[i].c.r);
+            colorBuffer.push_back(triangleBuffer[i].c.g);
+            colorBuffer.push_back(triangleBuffer[i].c.b);
+            // Point 2
+            colorBuffer.push_back(triangleBuffer[i].c.r);
+            colorBuffer.push_back(triangleBuffer[i].c.g);
+            colorBuffer.push_back(triangleBuffer[i].c.b);
+            // Point 3
             colorBuffer.push_back(triangleBuffer[i].c.r);
             colorBuffer.push_back(triangleBuffer[i].c.g);
             colorBuffer.push_back(triangleBuffer[i].c.b);
@@ -82,11 +91,16 @@ void printBuffer(std::vector<unsigned int> buffer) {
 
 void printBuffer(std::vector<float> buffer) {
 	std::cout << "[";
-	for (int i = 0; i < buffer.size(); i=+2) {
-		if (buffer.size() - 1 != i) {
-			std::cout << "(" << buffer[i] << "x, " << buffer[i+1] << "y), ";
-		}else{
-			std::cout << "(" << buffer[i] << "x, " << buffer[i+1] << "y)]" << std::endl; 
-		}
+	for (int i = 0; i < buffer.size(); i++) {
+        if (buffer.size() - 1 != i) {
+            std::cout << buffer[i] << ", ";
+        }else{
+            std::cout << buffer[i] << "]" << std::endl;
+        }
+		// if (buffer.size() - 1 != i) {
+		// 	std::cout << "(" << buffer[i] << "x, " << buffer[i+1] << "y), ";
+		// }else{
+		// 	std::cout << "(" << buffer[i] << "x, " << buffer[i+1] << "y)]" << std::endl; 
+		// }
 	}
 }

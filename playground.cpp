@@ -70,11 +70,20 @@ int main( void )
 	TriagleManager tm;
 
 	tm.addTriangle(
+		point( -1.0f , -1.0f ),
+		point( -2.0f , 1.0f ),
+		point( 2.0f , 1.0f ),
+		color(0.5f, 1.0f, 0.0f)
+	);
+
+	tm.addTriangle(
 		point( 0.0f , 1.0f ),
 		point( 1.0f , -1.0f ),
 		point( -1.0f , -1.0f ),
-		color(0.0f, 1.0f, 0.0f)
+		color(0.0f, 1.0f, 0.5f)
 	);
+
+	printBuffer(tm.getColorBuffer());
 
 	unsigned int VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
@@ -94,6 +103,10 @@ int main( void )
 	glGenBuffers(1, &indexBufferID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
 
+	unsigned int colorBufferID;
+	glGenBuffers(1, &colorBufferID);
+	glBindBuffer(GL_ARRAY_BUFFER, colorBufferID);
+
 	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f); 
 	// Camera matrix
 	
@@ -111,16 +124,29 @@ int main( void )
 	do{
 
 		const std::vector<float> vertexBuffer_data = tm.getVertexBuffer();
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer_data), &vertexBuffer_data[0], GL_DYNAMIC_DRAW);
 
 		const std::vector<unsigned int> indexBuffer_data = tm.getIndexBuffer();
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexBuffer_data), &indexBuffer_data[0], GL_DYNAMIC_DRAW);
+		
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
 		const std::vector<float> colorBuffer_data = tm.getColorBuffer();
+		glBindBuffer(GL_ARRAY_BUFFER, colorBufferID);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(colorBuffer_data), &colorBuffer_data[0], GL_DYNAMIC_DRAW);
+		
+
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+
 
 		glClear(GL_COLOR_BUFFER_BIT); // Clear Buffer
 		
+		//glBindBuffer(GL_ARRAY_BUFFER, colorBufferID);
 
 		// if (glfwGetTime() - tickTimer >= 0.5) {
 		// 	tickTimer = glfwGetTime();
@@ -132,10 +158,6 @@ int main( void )
 		//glClearColor(1.0f - color.r, 1.0f - color.g, 1.0f - color.b, 0.0f);
 
 
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
 		glDrawElements(GL_TRIANGLES, indexBuffer_data.size(), GL_UNSIGNED_INT, (void*)0);
 		//glDrawArrays(GL_TRIANGLES, 0, (int)(buffer.size() / 2));
