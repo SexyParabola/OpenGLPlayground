@@ -24,39 +24,6 @@ color colorWheel(double theta) {
     );
 }
 
-point middlePoint(point v1, point v2) {
-	return point(
-		(v2.x + v1.x) / 2.0,
-		(v2.y + v1.y) / 2.0
-	);
-}
-
-void sierpinskiTessellation(std::vector<triangle> &triangleBuffer) {
-	std::vector<triangle> tempBuffer;
-	for (int i = 0; i < triangleBuffer.size(); i++) {
-		tempBuffer.push_back(triangle(
-			triangleBuffer[i].p1,
-			middlePoint(triangleBuffer[i].p1, triangleBuffer[i].p2),
-			middlePoint(triangleBuffer[i].p1, triangleBuffer[i].p3),
-			triangleBuffer[i].c
-		));
-			tempBuffer.push_back(triangle(
-			triangleBuffer[i].p2,
-			middlePoint(triangleBuffer[i].p2, triangleBuffer[i].p1),
-			middlePoint(triangleBuffer[i].p2, triangleBuffer[i].p3),
-			triangleBuffer[i].c
-		));
-			tempBuffer.push_back(triangle(
-			triangleBuffer[i].p3,
-			middlePoint(triangleBuffer[i].p3, triangleBuffer[i].p1),
-			middlePoint(triangleBuffer[i].p3, triangleBuffer[i].p2),
-			triangleBuffer[i].c
-		));
-	}
-	triangleBuffer = tempBuffer;
-
-}
-
 void geoInit(ShapeManager &sm) 
 {
 	sm.addRectangle(
