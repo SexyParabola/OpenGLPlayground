@@ -15,7 +15,6 @@ using namespace glm;
 #include "../common/shader.hpp"
 #include "Triangles.hpp"
 #include "ShapeManager.hpp"
-#include "Sorting.hpp"
 
 color colorWheel(double theta) {
     return color(
@@ -23,21 +22,6 @@ color colorWheel(double theta) {
         (sin(theta + 2.094) + 1) / 2,
         (sin(theta + 4.188) + 1) / 2
     );
-}
-
-const std::vector<std::vector<int>> geoUpdate(ShapeManager &sm, ListManager &lm, Sorter &sorter) 
-{
-	sm.tm.triangleBuffer.clear();
-	std::vector<std::vector<int>> IDs;
-	for (int i = 0; i < lm.list.size(); i++) {
-		IDs.push_back(sm.addRectangle(
-			point(((20.0 / (float)lm.list.size()) * i) - (9.95), -9.9),
-			point((20.0 / (float)lm.list.size()) - 0.01, lm.list[i] * (20.0 / (float)lm.maxElement) ),
-			color(1, 0, 0)
-		));
-	}
-	sm.updateColor(IDs[sorter.j % IDs.size()], color(0.0, 1.0, 0.0));
-	return IDs;
 }
 
 int main( void )
@@ -58,7 +42,7 @@ int main( void )
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Open a window and create its OpenGL context
-	window = glfwCreateWindow( 1024 * 2.4, 768 * 2.2, "Playground", NULL, NULL);
+	window = glfwCreateWindow( 2457, 1689, "Playground", NULL, NULL);
 	if( window == NULL ){
 		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
 		getchar();
@@ -84,13 +68,13 @@ int main( void )
 	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
-	ListManager lm(250);
-
-	Sorter sorter;
-
 	ShapeManager sm;
 
-	std::vector<std::vector<int>> IDs = geoUpdate(sm, lm, sorter);
+	std::vector<unsigned int> rect = sm.addRectangle(
+		point(-1.0, -1.0),
+		point(2.0, 2.0),
+		color(1, 0, 0)
+	);
 
 
 	//printBuffer(tm.getColorBuffer());
@@ -115,7 +99,7 @@ int main( void )
 	glGenBuffers(1, &colorBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, colorBufferID);
 
-	glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
+	glm::mat4 Projection = glm::ortho(-14.5f,14.5f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
 
 	glm::mat4 View = glm::lookAt(
 		glm::vec3(0,0,5), // Camera is at (4,3,3), in World Space
@@ -155,24 +139,10 @@ int main( void )
 
 		//sm.updateColor(rect, colorWheel(glfwGetTime()));
 		//if (glfwGetKey(window, GLFW_KEY_ENTER ) && pressed == false) {
-		if (glfwGetTime() - tickTimer >= 0.02) {
-			//pressed = true;
-			// for (int i = 0; i < sm.tm.triangleBuffer.size(); i++) {
-			// 	sm.tm.triangleBuffer[i].c = color(0.0, 1.0, 0.0);
-			// }
-			tickTimer = glfwGetTime();
-		}
-		static bool isSorted = false;
-		if (!isSorted)
-			sorter.sortStep(lm.list);
-		if (sorted(lm.list) && isSorted == false) {
-			isSorted = true;
-			std::cout << "Sorted!" << std::endl;
-		}
-		//sm.updateColor(IDs[sorter.i % IDs.size()], color(0.0, 1.0, 0.0));
-		//sm.updateColor(IDs[(sorter.i + IDs.size() - 1) % IDs.size()], color(0.0, 0.0, 1.0));
-		//sm.updateColor(IDs[(sorter.i + IDs.size() - 2) % IDs.size()], color(1.0, 0.0, 0.0));
-		IDs = geoUpdate(sm, lm, sorter);
+		// if (glfwGetTime() - tickTimer >= 0.02) {
+		// 	tickTimer = glfwGetTime();
+		// }
+		sm.updateColor(rect, colorWheel(glfwGetTime() * 2));
 
 
 		// static bool pressed = false;;
