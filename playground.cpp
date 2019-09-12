@@ -144,6 +144,19 @@ int main( void )
 		// }
 		sm.updateColor(rect, colorWheel(glfwGetTime() * 2));
 
+		static bool leftPressed = false;
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !leftPressed) {
+			leftPressed = true;
+			double cursorX;
+			double cursorY;
+			glfwGetCursorPos(window, &cursorX, &cursorY);
+			//if (cursorX) {}
+			std::cout << "(" << cursorX << ", " << cursorY << ")" << std::endl;
+		}
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE && leftPressed) {
+			leftPressed = false;
+		}
+
 
 		// static bool pressed = false;;
 		// if (glfwGetKey(window, GLFW_KEY_ENTER ) == GLFW_RELEASE) {
