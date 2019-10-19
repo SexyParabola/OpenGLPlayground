@@ -1,5 +1,6 @@
 #pragma once
 #include "Triangles.hpp"
+#include <iostream>
 
 typedef std::vector<unsigned int> ID;
 
@@ -9,6 +10,11 @@ struct rectangle {
     color c = color(0, 0, 0);
     rectangle(const point Pos, const point Size, const color Color) {
         pos = Pos; size = Size; c = Color;
+    };
+    void print() {
+        std::cout << "Pos:(" << pos.x << ", " << pos.y << ")\n";
+        std::cout << "Siz:(" << size.x << ", " << size.y << ")\n";
+        std::cout << "Color:(R:" << c.r << ", G:" << c.g << ", B:" << c.b << ")\n";
     };
 };
 
@@ -41,13 +47,26 @@ public:
             tm.triangleBuffer[id[i]].c = C;
         }
     }
+    void updateRectangle(ID id, rectangle r) {
+        tm.triangleBuffer[id[0]] = triangle(
+            point(r.pos.x, r.pos.y), 
+            point(r.pos.x + r.size.x, r.pos.y),
+            point(r.pos.x + r.size.x, r.pos.y + r.size.y), 
+            r.c
+        );
+        tm.triangleBuffer[id[1]] = triangle(
+            point(r.pos.x, r.pos.y),
+            point(r.pos.x, r.pos.y + r.size.y),
+            point(r.pos.x + r.size.x, r.pos.y + r.size.y),
+            r.c
+        );
+    }
     const rectangle getRectangle(ID id) {
-        rectangle rect(
+        return rectangle(
             point(tm.triangleBuffer[id[0]].p1.x, tm.triangleBuffer[id[0]].p1.y),
-            point(tm.triangleBuffer[id[0]].p2.x - tm.triangleBuffer[id[0]].p1.x, tm.triangleBuffer[id[0]].p2.y - tm.triangleBuffer[id[0]].p1.y),
+            point(tm.triangleBuffer[id[0]].p2.x - tm.triangleBuffer[id[0]].p1.x, tm.triangleBuffer[id[1]].p2.y - tm.triangleBuffer[id[1]].p1.y),
             color(tm.triangleBuffer[id[0]].c)
         );
-        return rect;
     }
     // }
     // const rectangle updateRectangle(ID id, const rectangle rect) {

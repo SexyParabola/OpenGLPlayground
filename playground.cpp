@@ -24,6 +24,24 @@ color colorWheel(double theta) {
     );
 }
 
+struct Object {
+    point pos;
+    point vel;
+    point acc;
+    Object(const point Pos, const point Acc) {
+        pos = Pos;
+        acc = Acc; 
+    }
+    void tick() {
+        vel.x += acc.x;
+        vel.y += acc.y;
+        acc.x = 0;
+        acc.y = 0;
+        pos.x += vel.x;
+        pos.y += vel.y;
+    }
+};
+
 int main( void )
 {
 	// Initialise GLFW
@@ -32,7 +50,7 @@ int main( void )
 		fprintf( stderr, "Failed to initialize GLFW\n" );
 		getchar();
 		return -1;
-	}
+	} 
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -42,7 +60,9 @@ int main( void )
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Open a window and create its OpenGL context
-	window = glfwCreateWindow( 2457, 1689, "Playground", NULL, NULL);
+	//window = glfwCreateWindow( 2457, 1689, "Playground", NULL, NULL);
+	point windowSize(2457, 1689);
+	window = glfwCreateWindow( windowSize.x, windowSize.y, "Playground", NULL, NULL);
 	if( window == NULL ){
 		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
 		getchar();
@@ -99,7 +119,10 @@ int main( void )
 	glGenBuffers(1, &colorBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, colorBufferID);
 
-	glm::mat4 Projection = glm::ortho(-14.5f,14.5f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
+	const float gridSize = 10.0f;
+	const float gridRatio = windowSize.x / windowSize.y;
+
+	glm::mat4 Projection = glm::ortho(-gridSize*gridRatio,gridSize*gridRatio,-gridSize,gridSize,0.0f,100.0f); // In world coordinates
 
 	glm::mat4 View = glm::lookAt(
 		glm::vec3(0,0,5), // Camera is at (4,3,3), in World Space
@@ -113,6 +136,8 @@ int main( void )
 	glm::mat4 MVP = Projection * View * Model; // Remember, matrix multiplication is the other way around
 
 	float tickTimer = glfwGetTime();
+
+	Object ob(point(0, 0), point(0, 0));
 
 	do{
 
@@ -135,14 +160,34 @@ int main( void )
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
 		
-		glClear(GL_COLOR_BUFFER_BIT); // Clear Buffer
+		//glClear(GL_COLOR_BUFFER_BIT); // Clear Buffer
 
 		//sm.updateColor(rect, colorWheel(glfwGetTime()));
 		//if (glfwGetKey(window, GLFW_KEY_ENTER ) && pressed == false) {
 		// if (glfwGetTime() - tickTimer >= 0.02) {
 		// 	tickTimer = glfwGetTime();
 		// }
-		sm.updateColor(rect, colorWheel(glfwGetTime() * 2));
+		ob.acc.x = sin(glfwGetTime() * 3.0) / 100.0;
+		ob.acc.y = cos(glfwGetTime() * 3.0) / 100.0;
+		ob.tick();
+		rectangle tempRect = sm.getRectangle(rect);
+		tempRect.c = colorWheel(glfwGetTime() * 2);
+		tempRect.pos = ob.pos;
+		sm.updateRectangle(rect, tempRect);
+
+		if (ob.pos.x >  10 * gridRatio){
+            ob.pos.x = -10 * gridRatio;
+        }
+        if (ob.pos.x < -10 * gridRatio){
+            ob.pos.x = 10 * gridRatio;
+        }
+        if (ob.pos.y > 10){
+            ob.pos.y = -10;
+        }
+        if (ob.pos.y < -10){
+            ob.pos.y = 10;
+        }
+		//sm.updateColor(rect, colorWheel(glfwGetTime() * 2));
 
 		static bool leftPressed = false;
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !leftPressed) {
