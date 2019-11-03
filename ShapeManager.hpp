@@ -75,3 +75,42 @@ public:
     //     //id.push_back(tm.triangleBuffer.size() - 1);
     // }
 };
+
+class RectShape {
+private:
+	ID id;
+	ShapeManager* sm;
+public:
+	RectShape(point Pos, point Size, color Color, ShapeManager& Sm) {
+		sm  = &Sm;
+		id = sm->addRectangle(Pos, Size, Color);
+	}
+	RectShape(ShapeManager& Sm) {
+		sm  = &Sm;
+		id = sm->addRectangle(point(0, 0), point(0, 0), color(0, 0 ,0));
+	}
+	const point getPos() {
+		return sm->getRectangle(id).pos;
+	}
+	const point getSize() {
+		return sm->getRectangle(id).size;
+	}
+	const color getColor() {
+		return sm->getRectangle(id).c;
+	}
+	void setPos(point Pos) {
+		rectangle temp = sm->getRectangle(id);
+		temp.pos = Pos;
+		sm->updateRectangle(id, temp);
+	}
+	void setSize(point Size) {
+		rectangle temp = sm->getRectangle(id);
+		temp.size = Size;
+		sm->updateRectangle(id, temp);
+	}
+	void setColor(color Color) {
+		rectangle temp = sm->getRectangle(id);
+		temp.c = Color;
+		sm->updateRectangle(id, temp);
+	}
+};

@@ -90,10 +90,10 @@ int main( void )
 
 	ShapeManager sm;
 
-	std::vector<unsigned int> rect = sm.addRectangle(
+	RectShape rect(
 		point(-1.0, -1.0),
 		point(2.0, 2.0),
-		color(1, 0, 0)
+		color(1, 0, 0), sm
 	);
 
 
@@ -137,7 +137,7 @@ int main( void )
 
 	float tickTimer = glfwGetTime();
 
-	Object ob(point(0, 0), point(0, 0));
+	Object orb(point(0, 0), point(0, 0));
 
 	do{
 
@@ -167,25 +167,24 @@ int main( void )
 		// if (glfwGetTime() - tickTimer >= 0.02) {
 		// 	tickTimer = glfwGetTime();
 		// }
-		ob.acc.x = sin(glfwGetTime() * 3.0) / 100.0;
-		ob.acc.y = cos(glfwGetTime() * 3.0) / 100.0;
-		ob.tick();
-		rectangle tempRect = sm.getRectangle(rect);
-		tempRect.c = colorWheel(glfwGetTime() * 2);
-		tempRect.pos = ob.pos;
-		sm.updateRectangle(rect, tempRect);
+		orb.acc.x = sin(glfwGetTime() * 3.0) / 100.0;
+		orb.acc.y = cos(glfwGetTime() * 3.0) / 100.0;
+		orb.tick();
 
-		if (ob.pos.x >  10 * gridRatio){
-            ob.pos.x = -10 * gridRatio;
+		rect.setColor(colorWheel(glfwGetTime() * 2));
+		rect.setPos(orb.pos);
+
+		if (orb.pos.x >  10 * gridRatio){
+            orb.pos.x = -10 * gridRatio;
         }
-        if (ob.pos.x < -10 * gridRatio){
-            ob.pos.x = 10 * gridRatio;
+        if (orb.pos.x < -10 * gridRatio){
+            orb.pos.x = 10 * gridRatio;
         }
-        if (ob.pos.y > 10){
-            ob.pos.y = -10;
+        if (orb.pos.y > 10){
+            orb.pos.y = -10;
         }
-        if (ob.pos.y < -10){
-            ob.pos.y = 10;
+        if (orb.pos.y < -10){
+            orb.pos.y = 10;
         }
 		//sm.updateColor(rect, colorWheel(glfwGetTime() * 2));
 
