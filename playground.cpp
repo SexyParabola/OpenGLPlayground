@@ -96,9 +96,6 @@ int main( void )
 		color(1, 0, 0), sm
 	);
 
-
-	//printBuffer(tm.getColorBuffer());
-
 	unsigned int VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
@@ -137,8 +134,6 @@ int main( void )
 
 	float tickTimer = glfwGetTime();
 
-	Object orb(point(0, 0), point(0, 0));
-
 	do{
 
 		const std::vector<float> vertexBuffer = sm.tm.getVertexBuffer();
@@ -162,31 +157,8 @@ int main( void )
 		
 		//glClear(GL_COLOR_BUFFER_BIT); // Clear Buffer
 
-		//sm.updateColor(rect, colorWheel(glfwGetTime()));
-		//if (glfwGetKey(window, GLFW_KEY_ENTER ) && pressed == false) {
-		// if (glfwGetTime() - tickTimer >= 0.02) {
-		// 	tickTimer = glfwGetTime();
-		// }
-		orb.acc.x = sin(glfwGetTime() * 3.0) / 100.0;
-		orb.acc.y = cos(glfwGetTime() * 3.0) / 100.0;
-		orb.tick();
-
 		rect.setColor(colorWheel(glfwGetTime() * 2));
-		rect.setPos(orb.pos);
-
-		if (orb.pos.x >  10 * gridRatio){
-            orb.pos.x = -10 * gridRatio;
-        }
-        if (orb.pos.x < -10 * gridRatio){
-            orb.pos.x = 10 * gridRatio;
-        }
-        if (orb.pos.y > 10){
-            orb.pos.y = -10;
-        }
-        if (orb.pos.y < -10){
-            orb.pos.y = 10;
-        }
-		//sm.updateColor(rect, colorWheel(glfwGetTime() * 2));
+		rect.setPos(point(sin(glfwGetTime()), cos(glfwGetTime())));
 
 		static bool leftPressed = false;
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !leftPressed) {
